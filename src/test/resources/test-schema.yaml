@@ -1,0 +1,10 @@
+objects:
+  - any: java.lang.Object
+  - aString: java.lang.String
+  - aList: java.util.List
+  - aMap: java.util.Map
+primitives:
+  - aBoolean: boolean
+  - anInt: int
+  - aLong: long
+  - aDouble: double

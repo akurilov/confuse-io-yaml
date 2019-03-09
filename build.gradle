@@ -1,0 +1,162 @@
+description = "Configuration serialization/deserialization to/from YAML"
+
+buildscript {
+	repositories {
+		mavenCentral()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath "org.javamodularity:moduleplugin:1.4.0"
+	}
+}
+
+apply plugin: "java"
+apply plugin: "maven"
+apply plugin: "signing"
+apply plugin: "org.javamodularity.moduleplugin"
+
+group = "com.github.akurilov"
+version = "1.0.0"
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+ext {
+	moduleName = "${group}.confuse.io.yaml"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+	compile(
+		"com.github.akurilov:confuse:1.2.1",
+		"org.yaml:snakeyaml:1.24",
+	)
+
+	testCompile("junit:junit:4.12")
+}
+
+jar {
+	manifest {
+		attributes (
+			"Automatic-Module-Name": moduleName,
+			"Implementation-Version": version,
+			"Implementation-Title": rootProject.name,
+		)
+	}
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = "sources"
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = "javadoc"
+	from javadoc.destinationDir
+}
+
+artifacts {
+	archives jar
+	archives sourcesJar
+	archives javadocJar
+}
+
+test {
+	useJUnitPlatform()
+	jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+	jvmArgs "-XX:MaxDirectMemorySize=1g"
+	jvmArgs "-XX:+HeapDumpOnOutOfMemoryError"
+	maxHeapSize "1g"
+	systemProperty "com.sun.management.jmxremote", "true"
+	systemProperty "com.sun.management.jmxremote.port", "9010"
+	systemProperty "com.sun.management.jmxremote.rmi.port", "9010"
+	systemProperty "com.sun.management.jmxremote.local.only", "false"
+	systemProperty "com.sun.management.jmxremote.authenticate", "false"
+	systemProperty "com.sun.management.jmxremote.ssl", "false"
+	testLogging {
+		events "passed", "skipped", "failed", "standardOut"
+		showExceptions = true
+		showStandardStreams = true
+	}
+}
+
+signing {
+	required {
+		gradle.taskGraph.hasTask("uploadArchives")
+	}
+	sign configurations.archives
+}
+
+// see http://central.sonatype.org/pages/gradle.html for details
+uploadArchives {
+
+	def ossrhUsername = project.hasProperty("ossrhUsername") ?
+		project.property("ossrhUsername") : null
+	def ossrhPassword = project.hasProperty("ossrhPassword") ?
+		project.property("ossrhPassword") : null
+
+	repositories {
+		mavenDeployer {
+			beforeDeployment {
+				MavenDeployment deployment -> signing.signPom(deployment)
+			}
+
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			pom {
+
+				name = rootProject.name
+				groupId = rootProject.group
+
+				project {
+					description = rootProject.description
+
+					url "https://github.com/akurilov/confuse-io-yaml"
+
+					scm {
+						connection "https://github.com/akurilov/confuse-io-yaml.git"
+						developerConnection "https://github.com/akurilov/confuse-io-yaml.git"
+						url "https://github.com/akurilov/confuse-io-yaml.git"
+					}
+
+					licenses {
+						license {
+							name "Apache License 2.0"
+							url "https://github.com/akurilovs/confuse-io-yaml/blob/master/LICENSE"
+						}
+					}
+
+					developers {
+						developer {
+							id "akurilov"
+							name "Andrey Kurilov"
+							email "akurilov123@gmail.com"
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+wrapper {
+	gradleVersion = "5.0"
+}
+
+task printVersion {
+	group = "versioning"
+	description = "Prints version."
+	doLast { logger.quiet "version: $version" }
+}
