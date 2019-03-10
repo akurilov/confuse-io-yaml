@@ -1,10 +1,10 @@
 objects:
-  - any: java.lang.Object
-  - aString: java.lang.String
-  - aList: java.util.List
-  - aMap: java.util.Map
+  any: any
+  aString: string
+  aList: list
+  aMap: map
 primitives:
-  - aBoolean: boolean
-  - anInt: int
-  - aLong: long
-  - aDouble: double
+  aBoolean: boolean
+  anInt: int
+  aLong: long
+  aDouble: double

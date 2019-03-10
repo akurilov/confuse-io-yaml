@@ -1,0 +1,16 @@
+objects:
+  any: null
+  aString: yohoho
+  aList:
+    - 1
+    - 2
+    - 3
+    - 4
+  aMap:
+    key: val
+    foo: bar
+primitives:
+  aBoolean: true
+  anInt: 123456
+  aLong: 9876543210
+  aDouble: 3.1415926

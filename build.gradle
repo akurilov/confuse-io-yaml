@@ -35,7 +35,9 @@ dependencies {
 
 	compile(
 		"com.github.akurilov:confuse:1.2.1",
-		"org.yaml:snakeyaml:1.24",
+		"com.fasterxml.jackson.core:jackson-core:2.9.8",
+		"com.fasterxml.jackson.core:jackson-databind:2.9.8",
+		"com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8",
 	)
 
 	testCompile("junit:junit:4.12")
